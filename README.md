@@ -1,79 +1,197 @@
+<div align="center">
+
 # SafetyLM
 
-> An open-source, RAG-powered AI system built for Work Health and Safety practitioners across Australia and New Zealand.
+### The open-source AI that Work Health & Safety practitioners can actually trust.
 
-SafetyLM is a domain-specialised AI reasoning system grounded in AU/NZ WHS legislation, codes of practice, incident investigation frameworks, and safety science. It is not a general-purpose chatbot with a safety prompt — it is a purpose-built tool that reasons in the language WHS professionals actually use.
+*Grounded in Australian and New Zealand WHS law. Aligned to the frameworks professionals actually use. Transparent about every source.*
 
-**Built by:** Avneet (Neet) Singh  
-**Status:** Pre-development — planning phase  
-**Architecture:** RAG v1, fine-tuning planned for v2  
-**Base model:** TBD (see [`docs/02-model-selection.md`](docs/02-model-selection.md))  
-**Jurisdictions:** Australia (federal + all states and territories) + New Zealand  
+![Code License](https://img.shields.io/badge/code-Apache%202.0-blue.svg)
+![Docs & Data License](https://img.shields.io/badge/docs%20%26%20data-CC%20BY%204.0-blue.svg)
+![Status](https://img.shields.io/badge/status-building%20in%20public-orange.svg)
+![Jurisdictions](https://img.shields.io/badge/jurisdictions-AU%20%2B%20NZ-2ea44f.svg)
+![Runs locally](https://img.shields.io/badge/runs-100%25%20local-555.svg)
 
----
-
-## Why SafetyLM exists
-
-General-purpose LLMs fail WHS practitioners in predictable ways:
-
-- Hallucinate legislative citations and regulation numbers
-- Conflate jurisdictions (citing NSW regs in a WA context)
-- Give generic risk management advice with no grounding in AU/NZ law
-- Don't reason in domain frameworks like ICAM, bowtie, or critical control logic
-- Can't distinguish between model WHS Act provisions and jurisdiction-specific variations
-
-SafetyLM is built to fix that. The corpus is grounded in primary sources. The retrieval pipeline surfaces the right jurisdiction. The system prompt shapes reasoning toward WHS professional standards.
+</div>
 
 ---
 
-## Documentation index
+> **SafetyLM is a domain-specialised AI reasoning system for WHS practitioners across Australia and New Zealand** — grounded in primary legislation, regulations, codes of practice, and safety science. It is *not* a general-purpose chatbot with a safety prompt. It is a purpose-built tool that reasons in the language WHS professionals actually use, and shows its work.
+
+---
+
+## The problem
+
+When a WHS practitioner turns to a general-purpose AI to interpret legislation, draft a SWMS, or analyse an incident, the tool fails in ways a non-expert would never catch:
+
+- 🚫 **Hallucinated citations** — confidently inventing section numbers and regulations that don't exist.
+- 🗺️ **Jurisdiction confusion** — quoting NSW regulations in a Western Australian context, where the law is fundamentally different.
+- 📋 **Generic advice** — a one-size-fits-all "hierarchy of controls" template where a bowtie analysis or ICAM investigation was needed.
+- ⚖️ **Model-vs-jurisdiction blindness** — unable to distinguish the model WHS Act from the specific variations each state and territory enacted.
+
+In a safety-critical domain, a confident wrong answer isn't a minor annoyance — it erodes trust and can contribute to poor decisions. **No open-source AI is built and grounded specifically for AU/NZ WHS practice. SafetyLM exists to fill that gap.**
+
+---
+
+## The vision
+
+> SafetyLM is the open-source AI reasoning system that WHS practitioners across Australia and New Zealand can **actually trust** — grounded in primary legislation, aligned to domain frameworks, and transparent about its sources.
+
+Every answer traces back to a real document, in the right jurisdiction, with a currency caveat. When the system can't find a grounded source, it says so — rather than generating something plausible. That honesty *is* the product.
+
+---
+
+## What makes it different
+
+| | Principle | What it means in practice |
+|---|---|---|
+| 🎯 | **Domain depth over breadth** | One regulatory environment done properly beats ten done shallowly. AU/NZ WHS, end to end. |
+| 🔍 | **Source transparency** | Every response surfaces which document, which jurisdiction, and when it was last reviewed. No black box. |
+| 🗺️ | **Jurisdiction precision** | The right jurisdiction is a first-class filter, not an afterthought. A WA query retrieves WA instruments — and flags that WA is non-harmonised. |
+| 🧠 | **Framework alignment** | Reasons *through* ICAM, bowtie, critical-control logic, and the WHS duty hierarchy — not just *about* them. |
+| 🛡️ | **Conservative confidence** | Calibrated to express uncertainty rather than confabulate. "I couldn't find a specific source" is a feature. |
+| 📂 | **Open methodology** | Corpus criteria, retrieval design, and the evaluation benchmark are all published so others can reproduce, critique, and improve. |
+
+---
+
+## How it works
+
+SafetyLM uses **Retrieval-Augmented Generation (RAG)**: instead of trusting a model's memory, it retrieves the relevant WHS documents at query time and reasons over what's actually in front of it — then cites them.
+
+```mermaid
+flowchart TD
+    Q["WHS practitioner asks a<br/>jurisdiction-specific question"]
+    Q --> A["Analyse query<br/>detect jurisdiction + hazard"]
+    A --> R["Hybrid retrieval<br/>semantic + keyword search,<br/>filtered to the right jurisdiction"]
+    R --> RR["Rerank<br/>cross-encoder precision pass"]
+    RR --> P["Assemble prompt<br/>WHS reasoning rules + retrieved sources"]
+    P --> L["Local open-weight LLM<br/>runs on your machine — no API, no cloud"]
+    L --> O["Grounded answer<br/>with citations to the source documents"]
+    Corpus[("Curated AU/NZ WHS corpus<br/>legislation · regulations<br/>codes of practice · Body of Knowledge")]
+    Corpus -. indexed once .-> R
+```
+
+Everything runs **locally and open** — no API dependency, no per-query cost, full data sovereignty. The corpus is built only from **primary sources** a practitioner or court would recognise as authoritative.
+
+> **What the target experience looks like** *(illustrative — this is what we're building toward):*
+>
+> **You ask:** *"What are a PCBU's primary duties for psychosocial hazards in NSW?"*
+>
+> **SafetyLM answers** with the duty under the *Work Health and Safety Act 2011 (NSW)*, notes that "health" expressly includes psychological health, references the relevant Code of Practice — and ends with a **Sources** block linking each document, plus a reminder to verify currency with SafeWork NSW.
+
+---
+
+## Who it's for
+
+**Primary** — WHS consultants doing cross-jurisdictional research · early-career practitioners who need a reliable starting point · small businesses without a dedicated safety team · students working toward Cert IV, Diploma, or postgraduate WHS qualifications.
+
+**Secondary** — WHS software vendors embedding domain AI · researchers studying AI in occupational health & safety · organisations wanting to self-host a WHS AI on their own infrastructure.
+
+---
+
+## The plan
+
+SafetyLM is being **built in public**, phase by phase. Each phase has explicit acceptance criteria in [`docs/06-phased-roadmap.md`](docs/06-phased-roadmap.md).
+
+| Phase | What it delivers | Status |
+|---|---|---|
+| **0 · Planning & documentation** | Full architecture, corpus, evaluation, and governance design — a persistent project brief | ✅ **Complete** |
+| **1 · Corpus build** | A catalogued, structured manifest of every AU/NZ WHS source document, downloaded and processed | 🔜 **Next** |
+| **2 · Embedding & vector store** | Semantic + keyword retrieval with jurisdiction filtering, validated for precision | ⬜ Planned |
+| **3 · RAG pipeline & system prompt** | First working end-to-end SafetyLM: query in → grounded, cited answer out | ⬜ Planned |
+| **4 · Benchmark evaluation** | A **500-question WHS benchmark** + scored results against baselines, published openly | ⬜ Planned |
+| **5 · Interface & public launch** | A clean chat interface, install guide, and a public release anyone can run | ⬜ Planned |
+| **6 · v2 — fine-tuning** *(future)* | Fine-tuned weights & LoRA adapters that internalise WHS reasoning patterns | 🔭 Future |
+
+### A contribution to the field, regardless of outcome
+
+A standout deliverable is the **SafetyLM-Eval benchmark**: 500+ validated WHS questions with ground-truth answers, published openly under CC BY 4.0. Any WHS AI — open or commercial — can be measured against it. That makes it a genuine contribution to the space *independent of how SafetyLM itself performs*.
+
+---
+
+## Architecture at a glance
+
+| Layer | Approach |
+|---|---|
+| **Model** | Local, open-weight LLM (Apache-2.0 / MIT licensed), **selected by benchmark, not assumed** — see [`docs/02-model-selection.md`](docs/02-model-selection.md) |
+| **Retrieval** | Hybrid (semantic + keyword) search with jurisdiction metadata filtering, then a cross-encoder reranker |
+| **Corpus** | Primary AU/NZ WHS sources only; every chunk carries jurisdiction, document type, and currency metadata |
+| **Runtime** | Runs entirely on local hardware via Ollama — no cloud, no API keys |
+| **Evaluation** | A published 500-question benchmark gates every change to corpus, retrieval, or prompt |
+
+Deep dives live in [`docs/`](docs/) (see the index below).
+
+---
+
+## What SafetyLM is **not**
+
+Setting expectations is part of earning trust:
+
+- ❌ **Not** a replacement for professional WHS advice or a qualified practitioner.
+- ❌ **Not** a legal interpretation service.
+- ❌ **Not** a general-purpose chatbot.
+- ❌ **Not** a compliance checker that guarantees legislative currency — the corpus has a published date, and users must verify the current version with the regulator.
+
+These are design decisions that shape how the system responds, not disclaimers buried in fine print.
+
+---
+
+## Documentation
 
 | Document | Purpose |
 |---|---|
-| [`docs/00-vision.md`](docs/00-vision.md) | Project vision, goals, and guiding principles |
-| [`docs/01-architecture.md`](docs/01-architecture.md) | System architecture — how the pieces fit together |
-| [`docs/02-model-selection.md`](docs/02-model-selection.md) | Base model comparison and recommendation for M3 Max hardware |
-| [`docs/03-corpus-strategy.md`](docs/03-corpus-strategy.md) | Corpus scope, source taxonomy, and curation approach |
-| [`docs/04-rag-pipeline.md`](docs/04-rag-pipeline.md) | RAG pipeline design — chunking, embedding, retrieval, prompting |
-| [`docs/05-evaluation.md`](docs/05-evaluation.md) | Benchmark design and how to measure if SafetyLM is working |
+| [`docs/00-vision.md`](docs/00-vision.md) | Vision, goals, users, and success criteria |
+| [`docs/01-architecture.md`](docs/01-architecture.md) | System architecture and data flow |
+| [`docs/02-model-selection.md`](docs/02-model-selection.md) | Base model strategy and benchmark shortlist |
+| [`docs/03-corpus-strategy.md`](docs/03-corpus-strategy.md) | Corpus scope, source taxonomy, and metadata schema |
+| [`docs/04-rag-pipeline.md`](docs/04-rag-pipeline.md) | Retrieval pipeline, reranking, and system prompt design |
+| [`docs/05-evaluation.md`](docs/05-evaluation.md) | Benchmark design and scoring methodology |
 | [`docs/06-phased-roadmap.md`](docs/06-phased-roadmap.md) | Phase-by-phase build plan with acceptance criteria |
-| [`docs/07-distribution.md`](docs/07-distribution.md) | GitHub, Hugging Face, and community launch strategy |
-| [`docs/08-governance.md`](docs/08-governance.md) | Licensing, liability, attribution, and contribution guidelines |
-| [`docs/learning/`](docs/learning/) | Concept explainers annotated to each build phase |
+| [`docs/07-distribution.md`](docs/07-distribution.md) | Distribution and community launch strategy |
+| [`docs/08-governance.md`](docs/08-governance.md) | Licensing, liability, attribution, and contribution rules |
+| [`docs/research/`](docs/research/) | Dated, source-cited research snapshots behind key decisions |
+| [`docs/learning/`](docs/learning/) | Plain-language concept explainers, annotated to each build phase |
 
 ---
 
-## Project principles
+## Get involved
 
-1. **Domain depth over breadth** — one jurisdiction done well beats ten done poorly
-2. **Transparency over black-box** — every answer should be traceable to a source document
-3. **Practitioners first** — the benchmark is whether a WHS professional trusts the output, not whether it scores well on generic LLM leaderboards
-4. **Open by default** — corpus methodology, evaluation datasets, and model weights published openly
-5. **Conservative on liability** — clear disclaimers, source citations always surfaced, no substitution for professional judgement
+SafetyLM is open to contribution in three areas:
 
----
+- 📚 **Corpus** — propose missing AU/NZ WHS source documents (with complete metadata and a verified URL).
+- 🧪 **Evaluation** — contribute jurisdiction- or hazard-specific questions to the benchmark dataset.
+- 💻 **Code** — improve the pipeline, retrieval, or interface.
 
-## Repository structure (planned)
-
-```
-safetylm/
-├── README.md
-├── docs/                  # All planning and architecture documentation
-│   └── learning/          # Concept explainers (annotated to build phases)
-├── corpus/                # Corpus manifest, download scripts, processing pipeline
-│   ├── manifest/          # Spreadsheet of all source documents
-│   ├── raw/               # Downloaded source documents (gitignored)
-│   └── processed/         # Chunked and cleaned text (gitignored)
-├── embeddings/            # Embedding pipeline and vector store configuration
-├── rag/                   # Retrieval pipeline and prompt templates
-├── eval/                  # Benchmark dataset and evaluation scripts
-└── scripts/               # Utility scripts (download, process, index)
-```
+If you're a WHS practitioner, your domain judgement is the most valuable contribution of all. Open an issue to start a conversation. *(Full guidelines arrive with the public launch in Phase 5.)*
 
 ---
 
-## Current phase
+## Responsible use & disclaimer
 
-**Phase 0 — Planning and documentation** ← you are here
+> **SafetyLM is an AI research tool for information purposes only.**
+>
+> It is not a substitute for professional WHS advice, legal advice, or the judgement of a qualified work health and safety practitioner.
+>
+> SafetyLM's responses are grounded in publicly available documents as of the corpus version date. Legislative instruments are amended regularly — **always verify currency with the relevant regulator** before relying on any legislative provision cited.
+>
+> SafetyLM's author and contributors accept no liability for decisions made in reliance on SafetyLM outputs.
 
-Next: Phase 1 — Corpus build
+---
+
+## Licence
+
+- **Code** — [Apache 2.0](LICENSE)
+- **Documentation & benchmark dataset** — [CC BY 4.0](DATA-LICENSE.md)
+- **Base model weights** — obtained by users directly from the model provider under that provider's own licence.
+
+Corpus source documents remain under their original Crown copyright / open-access terms and are not relicensed; attribution is preserved per [`docs/08-governance.md`](docs/08-governance.md).
+
+---
+
+<div align="center">
+
+**Built by [Avneet (Neet) Singh](https://github.com/whosneet)** — WHS practitioner (COHSProf), building the tool he wanted to exist.
+
+*Grounded. Jurisdiction-aware. Cited. Open.*
+
+</div>

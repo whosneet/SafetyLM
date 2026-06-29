@@ -38,7 +38,7 @@ the corpus version date. Legislative instruments are amended regularly —
 always verify currency with the relevant regulator before relying on any 
 legislative provision cited here.
 
-Anthropic, Avneet Singh, and SafetyLM contributors accept no liability 
+Avneet Singh and SafetyLM contributors accept no liability 
 for decisions made in reliance on SafetyLM outputs.
 ```
 
