@@ -1,0 +1,37 @@
+# SafetyLM — Python dependencies (STUB)
+#
+# This is a planning placeholder, not a finalised dependency set.
+# - The Python tooling decision (uv / pip+venv / conda) is deferred to Phase 1.
+# - Versions are intentionally UNPINNED here. Pin them when the first script is written
+#   and the environment is actually created (Phase 1).
+# - Do not add a dependency without flagging it first (see CLAUDE.md §2).
+#
+# Packages are grouped by the phase that first needs them. Uncomment as you reach each phase.
+
+# ----- Phase 1: corpus build (download / extract / chunk) -----
+# requests              # download source documents
+# pdfminer.six          # PDF text extraction (more reliable than PyPDF2 for legislative PDFs)
+# beautifulsoup4        # HTML extraction
+# pandas                # manifest handling
+# openpyxl              # read/write the .xlsx manifest
+
+# ----- Phase 2: embedding & vector store -----
+# llama-index                          # RAG orchestration core
+# llama-index-embeddings-ollama        # nomic-embed-text via Ollama
+# llama-index-vector-stores-qdrant     # Qdrant integration
+# qdrant-client                        # Qdrant client
+
+# ----- Phase 3: RAG pipeline -----
+# llama-index-llms-ollama   # Llama 3.1 8B via Ollama
+# rank-bm25                 # BM25 keyword component for hybrid search
+
+# ----- Phase 4: evaluation -----
+# ragas                 # automated RAG evaluation
+# jupyter               # interactive eval review
+# wandb                 # optional experiment tracking
+
+# ----- Phase 5: interface -----
+# chainlit              # chat UI for the public demo
+
+# ----- Dev / housekeeping -----
+# python-dotenv         # load local config from .env

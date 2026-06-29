@@ -1,0 +1,49 @@
+# ===== macOS =====
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# ===== Python =====
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# ===== Virtual environments =====
+.venv/
+venv/
+env/
+ENV/
+.python-version
+
+# ===== Environment / secrets =====
+.env
+.env.*
+!.env.example
+
+# ===== Jupyter =====
+.ipynb_checkpoints/
+
+# ===== Tooling caches =====
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.cache/
+
+# ===== SafetyLM corpus data (large; reproduced via scripts) =====
+corpus/raw/*
+corpus/processed/*
+!corpus/raw/.gitkeep
+!corpus/processed/.gitkeep
+
+# ===== Local model weights & vector store data =====
+models/
+*.gguf
+qdrant_storage/
+
+# ===== Experiment tracking =====
+wandb/
