@@ -1,145 +1,175 @@
 # SafetyLM — Base Model Selection
 
+> **Status: refreshed 2026-06-29.** This document was originally written in 2024 around
+> Llama 3.1 8B. It has been updated to the mid-2026 landscape. **Nothing here is locked** —
+> the base model, embedding model, and reranker are *pluggable components* chosen by the
+> Phase 4 benchmark, not by this document. The evidence base (with sources and confidence
+> flags) is the research snapshot: [`research/2026-06-29-model-landscape.md`](research/2026-06-29-model-landscape.md).
+>
+> **Why "don't lock":** in a RAG system the model is swappable behind the pipeline. The right
+> answer comes from running candidates against SafetyLM's own benchmark on real AU/NZ WHS
+> questions — public leaderboards do **not** reliably predict in-domain legal performance.
+
+---
+
 ## Your hardware context
 
-**Machine:** MacBook Pro M3 Max, 64GB unified memory  
+**Machine:** MacBook Pro M3 Max, 64GB unified memory.
 
-This is an excellent local inference machine. The M3 Max's unified memory architecture means the GPU and CPU share the same memory pool — so all 64GB is available for model weights, unlike a discrete GPU setup where you're limited to VRAM (typically 8–24GB on consumer cards).
+The M3 Max's unified memory means the GPU and CPU share one memory pool — all 64GB is
+available for model weights, unlike a discrete GPU limited to its VRAM. After the OS and
+apps (~10GB) you have roughly **50–54GB usable** for the whole AI stack (LLM + vector store +
+embedding model + context cache).
 
-> **Learning note — why model size matters for hardware:**
-> LLM weights are stored as numbers. A 7 billion parameter model at 4-bit quantisation (a compression technique explained below) needs roughly 4–5GB of memory. An 8B model needs 5–6GB. A 70B model needs 35–40GB. Your 64GB means you can run models up to about 40B parameters comfortably, or smaller models with headroom left over for the RAG pipeline, vector store, and OS. Most projects at this stage use 7B–13B models because they're fast, capable, and leave room to breathe.
+> **Learning note — what fits:** a 14B model at Q8 is ~15GB; a 24–32B dense model at Q4 is
+> ~13–20GB; a Mixture-of-Experts 30B-A3B is ~17–18GB at Q4. **All of these run comfortably on
+> 64GB alongside Qdrant and an embedding model** — so the original 2024 instinct to default to
+> an 8B model under-uses this machine. The constraint is speed and quality tradeoffs, not
+> memory.
+
+> **Bandwidth governs speed:** the M3 Max has ~400 GB/s memory bandwidth and decode is
+> bandwidth-bound — tokens/sec ≈ bandwidth ÷ bytes read per token. This is *why* Mixture-of-
+> Experts models are attractive locally (below).
 
 ---
 
 ## What quantisation means
 
-> **Learning note:** You'll see terms like Q4_K_M or Q8_0 attached to model files. This is quantisation — a compression technique that reduces model size by representing the weights with fewer bits of precision.
+> **Learning note:** model files carry tags like `Q4_K_M` or `Q8_0`. This is quantisation — a
+> compression technique that stores each weight with fewer bits, trading a little quality for a
+> lot of memory and speed.
 
-| Format | Bits per weight | Memory (7B model) | Quality tradeoff |
+| Format | Bits/weight | Memory (14B model) | Quality tradeoff |
 |---|---|---|---|
-| FP16 | 16 bits | ~14GB | Full quality, high memory |
-| Q8_0 | 8 bits | ~7GB | Near-identical to FP16 |
-| Q4_K_M | 4 bits | ~4GB | Small quality drop, very practical |
-| Q3_K_M | 3 bits | ~3GB | Noticeable quality drop |
+| FP16 | 16 | ~28GB | Full quality, high memory |
+| Q8_0 | 8 | ~15GB | Near-identical to FP16 |
+| Q4_K_M | 4 | ~8–9GB | ~95–98% of full precision — very practical |
+| MLX 4-bit | 4 | ~8GB | Apple-native; retains ~97% MMLU, ~10% less memory than GGUF |
 
-For SafetyLM on your M3 Max, **Q8_0 is the sweet spot** — near-full quality at half the memory of FP16. You have the headroom to run it. Q4_K_M is the fallback if you want faster inference or need memory for other things.
-
----
-
-## Candidate models
-
-### Option A — Llama 3.1 8B Instruct
-
-**Developer:** Meta  
-**Parameters:** 8 billion  
-**Memory at Q8_0:** ~8.5GB  
-**Licence:** Llama 3 Community Licence (commercial use permitted under 700M MAU threshold)
-
-**Strengths for SafetyLM:**
-- Strongest instruction-following at this parameter scale — critical for a system prompt that needs to enforce citation behaviour, jurisdictional precision, and WHS reasoning patterns
-- Largest open-source community, most tooling support (Ollama, LlamaIndex, LangChain all prioritise it)
-- Excellent at structured output — important for consistent response formatting
-- 128K context window — can handle large retrieved chunks without truncation issues
-
-**Weaknesses:**
-- Slightly slower inference than Mistral on CPU-heavy paths
-- Meta licence has restrictions (can't use outputs to train competing foundation models — relevant for v2 fine-tuning, but the restriction applies to the base model outputs, not your domain corpus)
+For interactive RAG on your machine, **Q4_K_M (or Apple MLX 4-bit) is the working default** —
+the quality loss is small and the speed/memory gain is large. Reserve Q8 for a final-quality
+comparison if the benchmark suggests Q4 is costing accuracy.
 
 ---
 
-### Option B — Mistral 7B Instruct v0.3
+## What changed since 2024 (and why it matters for SafetyLM)
 
-**Developer:** Mistral AI  
-**Parameters:** 7 billion  
-**Memory at Q8_0:** ~7.5GB  
-**Licence:** Apache 2.0 (fully open, no restrictions)
+The original doc compared Llama 3.1 8B, Mistral 7B, and Gemma 2 9B. Two things have shifted the
+decision substantially:
 
-**Strengths for SafetyLM:**
-- Apache 2.0 is the cleanest licence for an open-source project — no ambiguity about commercial use or derivative works
-- Fast inference, efficient architecture
-- Strong reasoning relative to parameter count
-- Good community support
+1. **Licensing is now the first filter, not a footnote.** SafetyLM is an open, *legal-domain*
+   product, so a clean licence (Apache-2.0 / MIT) matters twice over:
+   - **Llama** models stay under the Meta Community Licence → excluded from being the flagship
+     base model (avoids the licence caveat in the README entirely).
+   - **Gemma 3** ships under the Gemma Terms of Use, whose prohibited-use policy includes
+     **restrictions touching legal/medical professional-practice content** — a genuine problem
+     for a WHS tool. (Gemma 4, Apr 2026, reportedly moved to Apache-2.0 — verify before use.)
+   - The **clean-licence field** is strong now: **Qwen3** (Apache-2.0), **Mistral Small**
+     (Apache-2.0), **Phi-4** (MIT), **gpt-oss** (Apache-2.0).
 
-**Weaknesses:**
-- 32K context window (vs Llama's 128K) — tighter limit on how much retrieved corpus content can be injected per query
-- Instruction following slightly weaker than Llama 3.1 at the same parameter scale
-- Less community momentum since Llama 3 released
-
----
-
-### Option C — Gemma 2 9B Instruct
-
-**Developer:** Google DeepMind  
-**Parameters:** 9 billion  
-**Memory at Q8_0:** ~9.5GB  
-**Licence:** Gemma Terms of Use (permissive, allows commercial use and fine-tuning)
-
-**Strengths for SafetyLM:**
-- Punches above its weight class — benchmark performance closer to 13B models
-- Strong at following complex multi-part instructions
-- Good at citation and structured output tasks
-
-**Weaknesses:**
-- Less community tooling compared to Llama and Mistral
-- Gemma licence is less battle-tested legally than Apache 2.0 or even Llama's community licence
-- Smaller ecosystem means less documentation and fewer solved problems to reference
+2. **Two RAG-specific findings change how we run the model:**
+   - **Reasoning/"thinking" mode hallucinates *more* on grounded summarisation.** On Vectara's
+     hallucination benchmarks, reasoning models exceed 10% hallucination where instruct models
+     sit at 4–6%. **→ Run instruct (non-reasoning) variants with thinking OFF on SafetyLM's
+     faithfulness-critical path.**
+   - **Bigger is not more faithful.** Qwen3-8B beats Qwen3-32B, and Gemma-3 12B beats 27B, on
+     grounded-summarisation hallucination. **→ Don't assume the largest model that fits is the
+     most trustworthy; benchmark faithfulness directly.**
 
 ---
 
-### Option D — Llama 3.1 70B Instruct (stretch option)
+## Current candidates (mid-2026)
 
-**Developer:** Meta  
-**Parameters:** 70 billion  
-**Memory at Q4_K_M:** ~38GB — fits on your machine, nothing left over  
-**Memory at Q8_0:** ~75GB — does not fit
+All licence-clean, all fit on 64GB. See the research snapshot for sources, context windows, and
+Ollama tags.
 
-**Strengths:**
-- Significantly better reasoning quality, especially on complex multi-document tasks
-- Better at catching jurisdictional nuance in legislative interpretation
+### Dense models
 
-**Weaknesses:**
-- Inference speed on M3 Max at 70B Q4_K_M will be slow — 3–8 tokens/second depending on context length
-- No headroom for the RAG pipeline to run simultaneously without memory pressure
-- Better reserved for v2 evaluation or cloud deployment, not local development
+| Model | Params | Licence | Context | RAG lens |
+|---|---|---|---|---|
+| **Qwen3-14B** | 14B | Apache-2.0 | 128K | Strong instruction-following + native structured output; well-evidenced |
+| **Mistral Small 3.2** | 24B | Apache-2.0 | 128K | Explicitly tuned for instruction-following + function-calling — on-target for citation blocks |
+| **Qwen3-32B** | 32B | Apache-2.0 | 128K | Larger sibling; same toolchain |
+| **Phi-4** | 14B | MIT | **16–32K only** | Strong reasoning for size, but short context constrains multi-chunk RAG |
+| **Gemma 4 31B** ⚠ verify | 31B | Apache-2.0 (verify) | 256K | Post-cutoff; promising but specs need confirming at build |
 
----
+### Mixture-of-Experts (the M3 Max sweet spot)
 
-## Recommendation
+> **Learning note — why MoE fits this hardware:** an MoE model has many "expert" sub-networks
+> but only activates a few per token. **Total** parameters drive *memory*; **active**
+> parameters drive *speed*. So a 30B-total / 3B-active model has the memory footprint of a 30B
+> (~17GB at Q4) but decodes at roughly the speed of a 3B model — big-model quality at
+> small-model latency.
 
-**Primary: Llama 3.1 8B Instruct at Q8_0**
-
-The instruction-following quality and 128K context window are the decisive factors for a RAG system where prompt construction is load-bearing. The larger context window means you can inject more retrieved corpus chunks per query, which directly improves answer quality for multi-document questions (e.g. comparing a model WHS Act provision against a jurisdiction-specific variation).
-
-The Llama community licence is not a meaningful constraint at v1 scale. If it becomes one at v2 (unlikely for an open-source project), the architecture can swap models without rebuilding anything — the base model is a pluggable component.
-
-**Secondary / comparison: Mistral 7B Instruct v0.3 at Q8_0**
-
-Run both on the benchmark evaluation dataset once it's built. Apache 2.0 is the cleaner open-source story, and if performance is within 5% of Llama on WHS-specific tasks, Mistral's licence advantage may tip the decision. Don't commit to a final model choice until you have benchmark data.
+| Model | Total / Active | Licence | Context | Notes |
+|---|---|---|---|---|
+| **Qwen3-30B-A3B** | 30B / 3B | Apache-2.0 | 256K | Reference local-RAG MoE; the standout fit for this machine |
+| **gpt-oss-20b** | 21B / 3.6B | Apache-2.0 | 128K | ~14GB, fast; clean baseline |
 
 ---
 
-## Runtime: Ollama
+## Recommendation — a benchmark shortlist, not a pick
 
-> **Learning note:** Ollama is a local model serving tool that makes running open-source LLMs on a Mac as simple as running a command. It handles model downloading, quantisation selection, and serving an API endpoint locally. Think of it like Docker but for LLMs.
+Run these against the Phase 4 benchmark (`05-evaluation.md`). Run all with **thinking OFF** on
+the grounded path.
 
-**Why Ollama over alternatives:**
-- Native Apple Silicon support with Metal acceleration (uses the M3 Max GPU automatically)
-- Single command to pull and run a model: `ollama run llama3.1:8b`
-- Exposes a local API endpoint that LlamaIndex (the RAG orchestration layer) connects to directly
-- No Python environment complexity for the model serving layer
-- Easy to swap models by changing one line in the config
+| Role | Model | Why |
+|---|---|---|
+| **~14B dense** | **Qwen3-14B** | Best-evidenced clean-licence 14B; native structured output; strong faithfulness in the Qwen3 instruct line |
+| **~24–32B / MoE** | **Qwen3-30B-A3B** (MoE) + **Mistral Small 3.2 24B** (dense comparator) | The 64GB sweet spot vs a purpose-tuned instruction-following dense model |
+| **Small baseline** | **gpt-oss-20b** or **Qwen3-8B** | A clean floor to measure RAG uplift against |
+| **No-RAG floor** | **vanilla Llama 3.1 8B** | Kept *only* as the baseline in the eval (per `05-evaluation.md`) to measure what corpus + retrieval add — not a deployment candidate |
 
-**Alternative — llama.cpp directly:** More control, slightly faster inference, but more setup complexity. Ollama wraps llama.cpp under the hood anyway. Start with Ollama, drop to llama.cpp if you hit performance ceilings.
+If you want to test a newer dense ~27–31B, treat **Qwen3.6-27B** or **Gemma 4 31B** as
+**verify-at-build upside experiments** (post-cutoff, specs unconfirmed), not the baseline.
 
 ---
 
-## Expected inference performance on M3 Max
+## Runtime: Ollama (with an MLX caveat)
 
-| Model | Quantisation | Memory | Estimated tokens/sec |
-|---|---|---|---|
-| Llama 3.1 8B | Q8_0 | ~8.5GB | 40–60 t/s |
-| Llama 3.1 8B | Q4_K_M | ~4.7GB | 60–90 t/s |
-| Mistral 7B | Q8_0 | ~7.5GB | 45–65 t/s |
-| Llama 3.1 70B | Q4_K_M | ~38GB | 3–8 t/s |
+> **Learning note:** Ollama is a local model server that makes running open LLMs on a Mac a
+> one-line command (`ollama run qwen3:14b`). It handles downloading, quantisation, and serving
+> a local API that LlamaIndex connects to. Think Docker, but for LLMs.
 
-40–60 tokens/second is very usable for development and testing. A 300-word response generates in roughly 5–8 seconds. Acceptable for a practitioner tool, excellent for iterative development.
+**Why Ollama:** native Apple Silicon + Metal acceleration, trivial model swapping (one line),
+local API endpoint, no Python complexity for serving.
+
+> **Runtime caveat to verify (mid-2026):** Ollama is reportedly migrating its Apple-Silicon
+> engine from llama.cpp to **Apple MLX**. MLX is faster at *decode* but, on current evidence,
+> **weaker at *prefill* / long context — which is exactly what RAG stresses** (large retrieved
+> chunks go into the prompt). If SafetyLM routinely exceeds ~5–8K tokens of context,
+> **llama.cpp + FlashAttention may win end-to-end.** Benchmark your own prefill at realistic
+> RAG prompt lengths before committing a runtime. (`llama.cpp` is also the more reliable local
+> path for running a reranker via `--rerank` — see `04-rag-pipeline.md`.)
+
+---
+
+## Expected inference performance on M3 Max (Q4, decode)
+
+| Model class | Approx tokens/sec | Notes |
+|---|---|---|
+| 7–8B dense | 45–55 | Fast |
+| 13–14B dense | ~30 | Very usable |
+| 24–32B dense | ~25–35 | Acceptable for a research tool |
+| **MoE 30B-A3B** | **~90–130** ⚠ extrapolated | Big-model quality at small-model speed; no direct M3 Max figure yet |
+| 70B dense | ~7.5 | Needs 128GB — not usable on 64GB |
+
+⚠ Most published 2026 numbers are M4/M5; treat M3 Max as ~equal to or 5–15% below M4 Max for
+decode. The MoE figure is extrapolated — verify on your machine.
+
+40–130 tok/s is comfortably interactive: a 300-word answer in a few seconds.
+
+---
+
+## How to actually decide (Phase 4)
+
+1. Build the benchmark first (`05-evaluation.md`) — you cannot choose a model without it.
+2. Run the shortlist with thinking OFF; score faithfulness, jurisdictional accuracy, and
+   structured-citation reliability, not just "feel".
+3. Weight **faithfulness and instruction-following** above raw size.
+4. Prefer the cleanest licence among models within ~5% on the WHS benchmark.
+5. **Validate the winner on a labelled set of real AU/NZ WHS queries** before locking — the one
+   recommendation from the research with no caveat.
+
+Record the final pick (and the benchmark evidence for it) back into this document and
+`CLAUDE.md §3` when Phase 4 completes.

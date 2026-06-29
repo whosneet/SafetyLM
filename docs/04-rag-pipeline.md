@@ -42,12 +42,13 @@ Indexed for filtered retrieval
 | Document loading | LlamaIndex `SimpleDirectoryReader` | Handles PDF, HTML, DOCX natively |
 | Text extraction (PDF) | `pdfminer.six` | More reliable than PyPDF2 for legislative PDFs with complex formatting |
 | Chunking | LlamaIndex `SentenceSplitter` | Respects sentence boundaries, configurable overlap |
-| Embedding model | `nomic-embed-text` via Ollama | Runs locally on M3 Max, strong performance, no API cost |
+| Embedding model | **Benchmark candidate (refreshed)** — `bge-m3` (native dense+sparse, hybrid-ready) primary; `nomic-embed-text` prototyping only | Local on M3 Max, no API cost. See refreshed note below + `02-model-selection.md` |
+| Reranker *(new stage)* | **Benchmark candidate** — `Qwen3-Reranker-0.6B` (32K ctx) or `bge-reranker-v2-m3` | Cross-encoder that refines first-stage retrieval; run via llama.cpp `--rerank` (Metal) |
 | Vector store | Qdrant (local Docker instance) | Best-in-class metadata filtering, self-hostable |
 | Orchestration | LlamaIndex | Better RAG primitives than LangChain, active development |
 
-> **Learning note — why nomic-embed-text for embeddings:**
-> The embedding model converts text to vectors. It's separate from the LLM that generates responses. `nomic-embed-text` is an open-source embedding model that runs locally, supports 8192 token input (handles long legislative clauses), and benchmarks competitively against OpenAI's embedding models. Running it locally means no API cost and no data leaving your machine.
+> **Learning note — the embedding model (refreshed 2026-06-29):**
+> The embedding model converts text to vectors. It is separate from the LLM that generates responses. The original plan used `nomic-embed-text`; mid-2026 research found it **partially superseded** — fine for a first cut, but outclassed for legal/regulatory retrieval (it trails 1024-dim models by ~6 points on legal subsets). The current primary candidate is **`bge-m3`**, because it natively emits **dense + sparse + ColBERT** vectors from one pass — uniquely matching SafetyLM's hybrid (semantic + BM25) design. Caveat: to actually get the sparse/ColBERT outputs you generally need BAAI's `FlagEmbedding` library, not the bare Ollama endpoint — verify in your runtime. The embedding choice is a **quality** decision (footprints are <1.5GB), so pick it with an in-domain WHS eval. See `02-model-selection.md` and `research/2026-06-29-model-landscape.md`.
 
 > **Learning note — why Qdrant over alternatives:**
 > Other vector stores include Chroma (simpler but limited metadata filtering), Pinecone (hosted, paid), and FAISS (fast but no metadata support). Qdrant's metadata filtering is the key differentiator for SafetyLM — you can filter by `jurisdiction = NSW` before running the semantic search, not after. This is critical for jurisdictional precision.
@@ -64,14 +65,18 @@ Detected: jurisdiction = NSW
           hazard_category = PSYCHOSOCIAL
           document_type_preference = LEGISLATION, CODE_OF_PRACTICE
         │
-        ▼ [Query embedder: nomic-embed-text]
+        ▼ [Query embedder]
 Query vector generated
         │
-        ▼ [Qdrant filtered search]
+        ▼ [Qdrant filtered hybrid search]
 Filter: jurisdiction IN [NSW, FED]  ← NSW + federal as fallback
         priority_tier IN [1, 2]
         legislative_currency = CURRENT
-Semantic search: top 6 chunks by vector similarity
+Hybrid (semantic + BM25): retrieve top ~50 candidate chunks
+        │
+        ▼ [Reranker]  ← new stage (refreshed 2026-06-29)
+Cross-encoder rescores candidates → keep top 6
+(improves precision; cannot recover what retrieval missed)
         │
         ▼ [Context assembler]
 Chunks ranked and assembled
@@ -80,13 +85,52 @@ Each chunk prefixed with: [SOURCE: {title} | {jurisdiction} | {section}]
         ▼ [Prompt constructor]
 System prompt + assembled context + user query
         │
-        ▼ [Llama 3.1 8B via Ollama]
+        ▼ [Base LLM via Ollama, thinking OFF]
 Response generated
         │
         ▼ [Response formatter]
 Answer + citations block
 Confidence signal if retrieval score was low
 ```
+
+---
+
+## Retrieval stack (refreshed 2026-06-29)
+
+Mid-2026 research updated two retrieval decisions. Both are **benchmark candidates**, not
+locked — full evidence and sources in [`research/2026-06-29-model-landscape.md`](research/2026-06-29-model-landscape.md).
+
+**1. Embedding model — move off `nomic-embed-text` for production.** It is now a
+prototyping/smoke-test choice. The primary candidate is **`bge-m3`** (MIT, 8192-token input)
+because it natively produces dense *and* sparse *and* ColBERT vectors — uniquely matching the
+hybrid search design below. Dense comparator: **`Qwen3-Embedding-0.6B`** (Apache-2.0, 1024-dim)
+paired with BM25. Decide with an in-domain WHS eval — benchmark rankings mislead on legal text.
+
+**2. Add a reranker — a new, two-stage retrieval pattern.** This is the single cheapest quality
+lever the original plan was missing:
+
+```
+retrieve (cast a wide net) → rerank (precision pass) → top-k into the prompt
+   Hybrid search: top ~50    Cross-encoder rescores    keep top 6
+```
+
+> **Learning note — retriever vs reranker:** the first-stage retriever (embedding + BM25) is
+> fast and optimised for *recall* — finding everything possibly relevant. A reranker is a slower
+> cross-encoder that reads the query and each candidate *together* and scores true relevance —
+> optimised for *precision*. Reranking **cannot recover a document the retriever missed**, so the
+> first stage must cast a wide net (top ~50–200) before the reranker narrows to the top 6.
+
+- **Candidate:** `Qwen3-Reranker-0.6B` (Apache-2.0, 32K context, instruction-aware) — preferred
+  for long WHS clauses; fallback `bge-reranker-v2-m3` (mature tooling, but a 512-token limit).
+  Avoid `jina-reranker-v3` (non-commercial licence).
+- **Runtime:** llama.cpp `--rerank` (Metal) is the more reliable local path today; Ollama's
+  reranker support lagged. Budget +50–400ms/query.
+- **Expected uplift:** ~+0.05–0.08 nDCG@10 over a decent retriever (treat vendor "+30–48%"
+  claims as dataset-specific upper bounds).
+
+**3. Run the generator with thinking OFF.** Research found reasoning/"thinking" modes
+*hallucinate more* on grounded summarisation — the opposite of what SafetyLM needs. Use instruct
+(non-reasoning) variants on the faithfulness-critical path. See `02-model-selection.md`.
 
 ---
 

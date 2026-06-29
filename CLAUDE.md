@@ -55,25 +55,32 @@ engineering. When working:
 
 ---
 
-## 3. Locked architecture decisions (v1)
+## 3. Architecture decisions (v1)
+
+**Locked** = settled for v1. **⏳ Benchmark** = a pluggable component chosen by the Phase 4
+eval, not assumed (refreshed 2026-06-29 — see [`docs/02-model-selection.md`](docs/02-model-selection.md)
+and [`docs/research/2026-06-29-model-landscape.md`](docs/research/2026-06-29-model-landscape.md)).
 
 | Decision | Choice |
 |---|---|
-| Approach | RAG only (no fine-tuning in v1) |
-| Base model | Llama 3.1 8B Instruct @ Q8_0 (primary); Mistral 7B Instruct v0.3 (comparison) |
-| Model runtime | Ollama (Metal acceleration on Apple Silicon) |
-| Embedding model | `nomic-embed-text` via Ollama (768-dim) |
-| Vector store | Qdrant (local Docker instance) |
-| RAG orchestration | LlamaIndex |
-| Chunking | 512 tokens, 64-token overlap, structure-aware |
-| Retrieval | Hybrid (semantic + BM25), top-6, jurisdiction metadata filter |
-| Interface | CLI first, then Chainlit for the demo |
+| Approach | **Locked:** RAG only (no fine-tuning in v1) |
+| Base model ⏳ Benchmark | Shortlist: **Qwen3-14B**, **Qwen3-30B-A3B** (MoE), **Mistral Small 3.2 24B**; small baseline Qwen3-8B / gpt-oss-20b; vanilla Llama 3.1 8B kept only as the no-RAG floor. All Apache/MIT — **Llama & Gemma 3 excluded on licence**. Run instruct (thinking OFF). |
+| Model runtime | **Locked:** Ollama (Metal). ⚠️ Verify the Ollama→MLX engine switch: MLX is faster at decode but weaker at prefill/long-context (RAG-relevant) |
+| Embedding model ⏳ Benchmark | Primary candidate **`bge-m3`** (native dense+sparse, hybrid-ready); `nomic-embed-text` prototyping only |
+| Reranker ⏳ Benchmark *(new)* | **`Qwen3-Reranker-0.6B`** or `bge-reranker-v2-m3` — cross-encoder precision pass after retrieval |
+| Vector store | **Locked:** Qdrant (local Docker instance) |
+| RAG orchestration | **Locked:** LlamaIndex |
+| Chunking | **Locked:** 512 tokens, 64-token overlap, structure-aware |
+| Retrieval | **Locked:** two-stage — hybrid (semantic + BM25) retrieve top ~50 → rerank → top-6; jurisdiction metadata filter |
+| Interface | **Locked:** CLI first, then Chainlit for the demo |
 | Hardware | MacBook Pro M3 Max, 64GB unified memory |
 
-> ⚠️ **Currency note:** these picks were made in 2024. The base model is a *pluggable*
-> component and the final choice is deferred to benchmark data (Phase 4). Revisit the
-> local-model landscape at Phase 2/3 — newer open models may outperform Llama 3.1 8B.
-> Do not treat the 2024 pick as fixed.
+> ⚠️ **Currency note (refreshed 2026-06-29):** the model / embedding / reranker rows are
+> *pluggable* and chosen by the Phase 4 benchmark, not assumed. The original 2024 picks
+> (Llama 3.1 8B, `nomic-embed-text`) are superseded as defaults. Two findings to honour:
+> run **instruct variants with thinking OFF** (reasoning modes hallucinate *more* on grounded
+> text), and **validate any pick on real AU/NZ WHS queries** — public benchmarks don't predict
+> in-domain legal performance. Re-verify post-Jan-2026 model specs/availability at build time.
 
 ---
 

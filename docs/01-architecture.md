@@ -106,9 +106,9 @@ An embedding model converts a piece of text into a list of numbers (a vector) th
 
 When a user asks a question, it gets converted to a vector too. The retrieval system finds corpus chunks whose vectors are closest to the query vector — those are the semantically relevant documents.
 
-- **Embedding model:** `nomic-embed-text` (runs locally on M3 Max, no API cost)
+- **Embedding model:** `bge-m3` is the current primary candidate (native dense+sparse, hybrid-ready); `nomic-embed-text` is prototyping-only. *Benchmark-decided — refreshed 2026-06-29.*
 - **Vector store:** Qdrant (self-hostable, strong metadata filtering)
-- **Detailed design:** [`04-rag-pipeline.md`](04-rag-pipeline.md)
+- **Detailed design + candidates:** [`04-rag-pipeline.md`](04-rag-pipeline.md), [`02-model-selection.md`](02-model-selection.md)
 
 ---
 
@@ -117,7 +117,8 @@ When a user asks a question, it gets converted to a vector too. The retrieval sy
 The logic layer that takes a query, builds the right search filters, hits the vector store, and assembles the prompt. This is where jurisdictional precision lives — the pipeline detects which jurisdiction is relevant to the query and applies it as a metadata filter before searching.
 
 - **Orchestration framework:** LlamaIndex (better RAG primitives than LangChain for this use case)
-- **Key design decisions:** chunking strategy, top-k value, metadata filter logic, prompt template
+- **Two-stage retrieval (refreshed 2026-06-29):** hybrid search retrieves a wide candidate set, then a cross-encoder **reranker** narrows to the top-k for precision.
+- **Key design decisions:** chunking strategy, top-k value, metadata filter logic, reranker choice, prompt template
 - **Detailed design:** [`04-rag-pipeline.md`](04-rag-pipeline.md)
 
 ---
@@ -126,7 +127,7 @@ The logic layer that takes a query, builds the right search filters, hits the ve
 
 The language model that generates the final response. For SafetyLM v1, this runs locally on the M3 Max. No API dependency, no per-token cost, full data sovereignty.
 
-- **Candidates:** Llama 3.1 8B, Mistral 7B, Gemma 2 9B
+- **Candidates (refreshed 2026-06-29):** Qwen3-14B, Qwen3-30B-A3B (MoE), Mistral Small 3.2 — all Apache/MIT; benchmark-decided, not locked. (Llama & Gemma 3 excluded on licence grounds.)
 - **Runtime:** Ollama (simplest local model serving for this hardware)
 - **Selection rationale:** [`02-model-selection.md`](02-model-selection.md)
 
