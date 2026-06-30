@@ -3,6 +3,10 @@
 .AppleDouble
 .LSOverride
 
+# ===== Office temp / lock files (e.g. ~$corpus_manifest.xlsx when open in Excel) =====
+~$*
+*.tmp
+
 # ===== Python =====
 __pycache__/
 *.py[cod]
