@@ -54,7 +54,7 @@ You cannot build a RAG system without knowing what's going in it. The manifest a
 - [ ] All Tier 1 documents downloaded and stored in `corpus/raw/`
 - [ ] All Tier 1 documents processed into chunks in `corpus/processed/`
 - [ ] Each chunk carries complete metadata (all fields from schema populated or explicitly NULL)
-- [ ] WA documents are flagged `pre_harmonisation: true`
+- [ ] VIC documents are flagged `pre_harmonisation: true` (Victoria is the sole non-harmonised jurisdiction; WA is harmonised since 2022, so WA = `false`)
 
 **What you will learn this phase:**
 - How to write and run Python scripts in a terminal

@@ -108,7 +108,7 @@ Automated scoring is less reliable for open-ended reasoning. These use a **rubri
 A separate metric tracked across all categories:
 - Did the response correctly identify the applicable jurisdiction?
 - Did it correctly distinguish federal vs state provisions?
-- Did it correctly flag WA pre-harmonisation where applicable?
+- Did it correctly flag VIC pre-harmonisation where applicable (Victoria being the sole non-harmonised jurisdiction)?
 
 Target for v1: **>85% jurisdictional accuracy** across the full benchmark.
 

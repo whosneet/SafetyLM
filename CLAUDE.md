@@ -39,8 +39,9 @@ engineering. When working:
 - **Never fabricate** a legislative citation, section/regulation number, document title, or
   URL. If something is unverified, mark it `VERIFY` and flag it — do not guess.
 - **Jurisdiction precision is first-class.** AU = federal (model WHS) + NSW, VIC, QLD, SA,
-  WA, TAS, NT, ACT; plus NZ. Never conflate jurisdictions. **WA is not harmonised**
-  (OSH Act 1984, not the model WHS framework) — always flag it.
+  WA, TAS, NT, ACT; plus NZ. Never conflate jurisdictions. **Victoria is the sole
+  non-harmonised jurisdiction** (OHS Act 2004) — always flag it. (WA harmonised under the
+  WHS Act 2020 from 31 Mar 2022; the OSH Act 1984 is repealed.)
 - **Never assert legislative currency as fact.** Always direct the user to verify against the
   regulator's live publication.
 - Every grounded answer traces to a source document. If retrieval finds nothing, say so —
@@ -89,7 +90,7 @@ and [`docs/research/2026-06-29-model-landscape.md`](docs/research/2026-06-29-mod
 - **Jurisdictions:** AU (federal + all states/territories) + NZ.
 - **Tier 1 (must-have for v1):** Model WHS Act + Regulations, all AU codes of practice, all
   NZ approved codes, AIHS BoK chapters, and each jurisdiction's Act / Regs / codes.
-- **WA flag:** every WA document tagged `pre_harmonisation: true`.
+- **Harmonisation flag:** VIC is the sole non-harmonised jurisdiction (OHS Act 2004) → tag VIC docs `pre_harmonisation: true`; WA is harmonised (WHS Act 2020, 31 Mar 2022) → `false`. See `docs/research/2026-06-30-whs-source-map.md`.
 - **`source_id` format:** `[JURISDICTION]-[CATEGORY]-[SEQUENCE]` — e.g. `FED-COP-001`,
   `NSW-LEG-001`, `NZ-REG-003`.
 - **Metadata schema:** full field list in `docs/03-corpus-strategy.md`.

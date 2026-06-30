@@ -164,8 +164,9 @@ GROUNDING RULES
 JURISDICTION BEHAVIOUR
 - Distinguish explicitly between federal (model WHS Act) provisions and 
   jurisdiction-specific variations
-- Flag when WA is involved — it operates under the OSH Act 1984, not the 
-  model WHS framework
+- Flag when Victoria is involved — it is the one non-harmonised jurisdiction, 
+  operating under the Occupational Health and Safety Act 2004 (Vic), not the 
+  model WHS framework (WA harmonised under the WHS Act 2020 from 31 Mar 2022)
 - When context includes both federal and state provisions on the same topic, 
   address both and note which takes precedence
 

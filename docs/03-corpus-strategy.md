@@ -33,7 +33,7 @@ These are the documents SafetyLM cannot function without. Any question involving
 **Federal**
 - Model WHS Act 2011 (and all amendments)
 - Model WHS Regulations 2011 (and all amendments)
-- All Safe Work Australia approved codes of practice (26+ documents)
+- All Safe Work Australia approved codes of practice (~28–30 documents — verify exact current count)
 - Safe Work Australia guidance materials (psychosocial, silica, asbestos, manual tasks, plant, etc.)
 - Key Work Health and Safety Statistics — Australia (annual)
 
@@ -46,13 +46,13 @@ For each jurisdiction: WHS Act, WHS Regulations, all approved/compliance codes o
 | VIC | Occupational Health and Safety Act 2004 | WorkSafe VIC |
 | QLD | Work Health and Safety Act 2011 (QLD) | Workplace Health and Safety QLD |
 | SA | Work Health and Safety Act 2012 (SA) | SafeWork SA |
-| WA | Occupational Safety and Health Act 1984 | WorkSafe WA |
-| TAS | Work Health and Safety Act 2022 | WorkSafe Tasmania |
+| WA | Work Health and Safety Act 2020 (WA) — harmonised 31 Mar 2022 | WorkSafe WA |
+| TAS | Work Health and Safety Act 2012 (Tas) | WorkSafe Tasmania |
 | NT | Work Health and Safety (National Uniform Legislation) Act 2011 | NT WorkSafe |
 | ACT | Work Health and Safety Act 2011 (ACT) | WorkSafe ACT |
 | Federal (Cth) | Work Health and Safety Act 2011 (Cth) | Comcare |
 
-> **Note on WA:** Western Australia is the main non-harmonised jurisdiction. It operates under the OSH Act 1984 and OSH Regulations 1996, not the model WHS framework. Every WA document in the corpus is flagged with a `pre_harmonisation: true` metadata field and responses involving WA include a note about this distinction.
+> **Note on harmonisation (corrected 2026-06-30):** **Victoria is the sole non-harmonised jurisdiction** — it operates under the Occupational Health and Safety Act 2004 (Vic) and OHS Regulations 2017, and uses "compliance codes" rather than "codes of practice". VIC documents are flagged `pre_harmonisation: true`. **Western Australia is now harmonised:** the Work Health and Safety Act 2020 (WA) commenced 31 March 2022 and repealed the OSH Act 1984, so WA documents are `pre_harmonisation: false` — do **not** catalogue the repealed OSH Act 1984 as current WA law. See [`research/2026-06-30-whs-source-map.md`](research/2026-06-30-whs-source-map.md).
 
 **New Zealand**
 - Health and Safety at Work Act 2015 (HSWA)
@@ -68,19 +68,20 @@ For each jurisdiction: WHS Act, WHS Regulations, all approved/compliance codes o
 ### Tier 2 — Important (include in v1 where available)
 
 **AIHS Body of Knowledge**
-All publicly available chapters covering: safety science foundations, risk, human factors, safety management systems, incident investigation, psychosocial hazards, contractor management, leadership, and more. Open access at aihs.org.au/bok — a significant domain knowledge resource.
+All publicly available chapters covering: safety science foundations, risk, human factors, safety management systems, incident investigation, psychosocial hazards, contractor management, leadership, and more. Published at **ohsbok.org.au** (not aihs.org.au). **Licence caveat:** the OHS Body of Knowledge is **proprietary** (non-commercial, no-derivatives, no-charging — *not* an open/Creative Commons licence), so chapters are catalogued but flagged **not ingestable** for model training absent written AIHS permission.
 
-**Industrial manslaughter legislation**
-Jurisdictions that have enacted industrial manslaughter provisions:
-- QLD: Work Health and Safety Act 2011 (QLD) — Category 1 offence provisions
-- VIC: Workplace Manslaughter offence under Occupational Health and Safety Act 2004
-- ACT: Industrial Manslaughter under the Work Health and Safety Act 2011 (ACT)
-- SA: Industrial Manslaughter under the Work Health and Safety Act 2012 (SA)
-- WA: Industrial Manslaughter under the Industrial Manslaughter Act 2023
-- NT: Work Health and Safety (National Uniform Legislation) Act 2011 — Category 1 provisions
-- NSW: Proposed legislation (flag as pending)
-- Federal: Under review (flag as pending)
-- NZ: HSWA Section 47 — gross negligence causing death provisions
+**Industrial manslaughter legislation (updated 2026-06-30)**
+As of 2026, an industrial/workplace manslaughter offence is in force in **all nine Australian jurisdictions**:
+- QLD: Work Health and Safety Act 2011 (Qld) — industrial manslaughter (2017)
+- NT: WHS (National Uniform Legislation) Act 2011 (NT) — from 1 Feb 2020
+- VIC: Workplace manslaughter, Occupational Health and Safety Act 2004 (Vic) — from 1 Jul 2020
+- WA: Work Health and Safety Act 2020 (WA) — from 31 Mar 2022
+- SA: Work Health and Safety Act 2012 (SA) — from 1 Jul 2024
+- Cth: Work Health and Safety Act 2011 (Cth) — from 1 Jul 2024 (Commonwealth public sector + scheme licensees)
+- NSW: Work Health and Safety Act 2011 (NSW) — enacted 2024 (confirm operative commencement)
+- TAS: WHS Amendment (Industrial Manslaughter) Act 2024 (Tas) — from 2 Oct 2024
+- ACT: industrial manslaughter under the Work Health and Safety Act 2011 (ACT)
+- NZ: no dedicated industrial-manslaughter offence; HSWA s.47 (reckless conduct) is the most serious offence
 
 **Thematic guidance across all jurisdictions**
 - Psychosocial hazards and psychological health
@@ -147,7 +148,8 @@ industry_relevance  Comma-separated: CONSTRUCTION / HEALTH /
 
 priority_tier       1 / 2 / 3
 
-pre_harmonisation   true / false (WA-specific flag)
+pre_harmonisation   true / false (true = non-harmonised jurisdiction; VIC only.
+                    WA is harmonised since 2022, so WA = false)
 
 license_notes       Crown copyright / Creative Commons / Open Access
 

@@ -47,7 +47,7 @@ Every answer traces back to a real document, in the right jurisdiction, with a c
 |---|---|---|
 | 🎯 | **Domain depth over breadth** | One regulatory environment done properly beats ten done shallowly. AU/NZ WHS, end to end. |
 | 🔍 | **Source transparency** | Every response surfaces which document, which jurisdiction, and when it was last reviewed. No black box. |
-| 🗺️ | **Jurisdiction precision** | The right jurisdiction is a first-class filter, not an afterthought. A WA query retrieves WA instruments — and flags that WA is non-harmonised. |
+| 🗺️ | **Jurisdiction precision** | The right jurisdiction is a first-class filter, not an afterthought. A Victorian query retrieves VIC instruments — and flags that Victoria is the one jurisdiction outside the harmonised model WHS scheme. |
 | 🧠 | **Framework alignment** | Reasons *through* ICAM, bowtie, critical-control logic, and the WHS duty hierarchy — not just *about* them. |
 | 🛡️ | **Conservative confidence** | Calibrated to express uncertainty rather than confabulate. "I couldn't find a specific source" is a feature. |
 | 📂 | **Open methodology** | Corpus criteria, retrieval design, and the evaluation benchmark are all published so others can reproduce, critique, and improve. |
