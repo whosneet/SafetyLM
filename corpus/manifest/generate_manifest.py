@@ -73,7 +73,7 @@ DOC_TYPES = {
     "good_practice_guideline", "guidance", "statistical_report", "bok_chapter",
     "standard", "court_decision", "policy",
     # added 2026-06-30 per gap review (new in-scope classes):
-    "bill", "safe_work_instrument", "safety_alert", "research_report",
+    "bill", "safe_work_instrument", "safety_alert", "research_report", "coroner_finding",
 }
 CURRENCY = {"CURRENT", "SUPERSEDED", "UNDER_REVIEW", "VERIFY"}
 VERIFICATION_METHODS = {"direct_fetch", "search_snippet", "regulator_index"}
@@ -96,7 +96,7 @@ CATEGORY = {
     "statistical_report": "STAT", "bok_chapter": "BOK", "standard": "STD",
     "court_decision": "CASE", "policy": "POL",
     "bill": "BILL", "safe_work_instrument": "SWI", "safety_alert": "ALERT",
-    "research_report": "RESEARCH",
+    "research_report": "RESEARCH", "coroner_finding": "CORONER",
 }
 
 # Required pre_harmonisation value per jurisdiction (deterministic project invariant).
@@ -112,6 +112,7 @@ LICENSE_VOCAB = {
     "CC-BY-4.0", "CC-BY-4.0 (VERIFY)", "CC-BY-NC-3.0-AU", "crown-copyright-open-attribution",
     "crown-copyright-restricted-NT", "nz-legislation-public-domain-s27",
     "proprietary-restricted-AIHS", "iso-restricted", "VERIFY",
+    "reference-only",  # public citation-reference items (e.g. ILO conventions, coroner indexes)
 }
 
 HERE = Path(__file__).resolve().parent
