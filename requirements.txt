@@ -1,37 +1,32 @@
-# SafetyLM — Python dependencies (STUB)
+# SafetyLM — Python dependencies (LOCKED MIRROR — generated, do not edit by hand)
 #
-# This is a planning placeholder, not a finalised dependency set.
-# - The Python tooling decision (uv / pip+venv / conda) is deferred to Phase 1.
-# - Versions are intentionally UNPINNED here. Pin them when the first script is written
-#   and the environment is actually created (Phase 1).
-# - Do not add a dependency without flagging it first (see CLAUDE.md §2).
+# Source of truth: pyproject.toml + uv.lock (managed with `uv`).
+# Regenerate this file:  uv export --no-hashes --no-dev > requirements.txt
+# Install without uv:    pip install -r requirements.txt
 #
-# Packages are grouped by the phase that first needs them. Uncomment as you reach each phase.
-
-# ----- Phase 1: corpus build (download / extract / chunk) -----
-# requests              # download source documents
-# pdfminer.six          # PDF text extraction (more reliable than PyPDF2 for legislative PDFs)
-# beautifulsoup4        # HTML extraction
-# pandas                # manifest handling
-# openpyxl              # read/write the .xlsx manifest
-
-# ----- Phase 2: embedding & vector store -----
-# llama-index                          # RAG orchestration core
-# llama-index-embeddings-ollama        # nomic-embed-text via Ollama
-# llama-index-vector-stores-qdrant     # Qdrant integration
-# qdrant-client                        # Qdrant client
-
-# ----- Phase 3: RAG pipeline -----
-# llama-index-llms-ollama   # Llama 3.1 8B via Ollama
-# rank-bm25                 # BM25 keyword component for hybrid search
-
-# ----- Phase 4: evaluation -----
-# ragas                 # automated RAG evaluation
-# jupyter               # interactive eval review
-# wandb                 # optional experiment tracking
-
-# ----- Phase 5: interface -----
-# chainlit              # chat UI for the public demo
-
-# ----- Dev / housekeeping -----
-# python-dotenv         # load local config from .env
+# All deps are permissively licensed (MIT/BSD/Apache) for Apache-2.0 compatibility.
+# (Phase 2+ deps — llama-index, qdrant-client, ragas, chainlit — are added when reached.)
+anyio==4.14.1
+beautifulsoup4==4.15.0
+certifi==2026.6.17
+cffi==2.0.0 ; platform_python_implementation != 'PyPy'
+charset-normalizer==3.4.7
+cryptography==49.0.0
+et-xmlfile==2.0.0
+h11==0.16.0
+httpcore==1.0.9
+httpx==0.28.1
+idna==3.18
+lxml==6.1.1
+openpyxl==3.1.5
+pdfminer-six==20260107
+pdfplumber==0.11.10
+pillow==12.2.0
+pycparser==3.0 ; implementation_name != 'PyPy' and platform_python_implementation != 'PyPy'
+pypdfium2==5.11.0
+regex==2026.6.28
+requests==2.34.2
+soupsieve==2.8.4
+tiktoken==0.13.0
+typing-extensions==4.15.0
+urllib3==2.7.0
