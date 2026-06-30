@@ -136,12 +136,14 @@ date_published      YYYY-MM-DD or YYYY if only year known
 
 date_last_reviewed  YYYY-MM-DD or NULL
 
-legislative_currency CURRENT / SUPERSEDED / UNDER_REVIEW
+legislative_currency CURRENT / SUPERSEDED / UNDER_REVIEW / VERIFY
+                    (VERIFY = currency could not be web-confirmed; resolve manually)
 
 hazard_category     PRIMARY hazard domain — one value only:
                     PSYCHOSOCIAL / OVA / FALLS / PLANT_EQUIPMENT /
                     CHEMICAL / MANUAL_HANDLING / ELECTRICAL /
-                    CONFINED_SPACES / CONTRACTOR / GENERAL
+                    CONFINED_SPACES / CONTRACTOR / NOISE / BIOLOGICAL /
+                    RADIATION / THERMAL / GENERAL
 
 industry_relevance  Comma-separated: CONSTRUCTION / HEALTH /
                     TRANSPORT / MANUFACTURING / MINING / ALL
