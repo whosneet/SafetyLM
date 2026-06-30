@@ -1,0 +1,23 @@
+[project]
+name = "safetylm"
+version = "0.1.0"
+description = "Open-source, RAG-powered AI reasoning system for Work Health & Safety (WHS) practitioners across Australia and New Zealand."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Apache-2.0" }
+# Dependencies are managed with uv (uv.lock is the source of truth).
+# requirements.txt is a generated mirror for non-uv users.
+# Licence note: every runtime dependency is permissively licensed (MIT/BSD) to stay
+# compatible with this project's Apache-2.0 licence. PyMuPDF (AGPL-3.0) is deliberately
+# AVOIDED for PDF extraction in favour of pdfplumber/pdfminer.six (MIT).
+dependencies = [
+    "beautifulsoup4>=4.15.0",
+    "httpx>=0.28.1",
+    "lxml>=6.1.1",
+    "openpyxl>=3.1.5",
+    "pdfplumber>=0.11.10",
+    "tiktoken>=0.13.0",
+]
+
+[tool.uv]
+package = false

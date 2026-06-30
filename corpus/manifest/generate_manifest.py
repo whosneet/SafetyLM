@@ -72,6 +72,8 @@ DOC_TYPES = {
     "act", "regulation", "code_of_practice", "compliance_code", "acop",
     "good_practice_guideline", "guidance", "statistical_report", "bok_chapter",
     "standard", "court_decision", "policy",
+    # added 2026-06-30 per gap review (new in-scope classes):
+    "bill", "safe_work_instrument", "safety_alert", "research_report", "coroner_finding",
 }
 CURRENCY = {"CURRENT", "SUPERSEDED", "UNDER_REVIEW", "VERIFY"}
 VERIFICATION_METHODS = {"direct_fetch", "search_snippet", "regulator_index"}
@@ -79,6 +81,8 @@ FILE_FORMATS = {"PDF", "HTML", "DOCX", "XLSX"}
 HAZARDS = {
     "PSYCHOSOCIAL", "OVA", "FALLS", "PLANT_EQUIPMENT", "CHEMICAL", "MANUAL_HANDLING",
     "ELECTRICAL", "CONFINED_SPACES", "CONTRACTOR", "GENERAL",
+    # added 2026-06-30 per gap review (eliminates NOISE split + physical-agent mis-tags):
+    "NOISE", "BIOLOGICAL", "RADIATION", "THERMAL",
 }
 INDUSTRIES = {"CONSTRUCTION", "HEALTH", "TRANSPORT", "MANUFACTURING", "MINING", "ALL"}
 TIERS = {"1", "2", "3"}
@@ -91,6 +95,8 @@ CATEGORY = {
     "acop": "ACOP", "good_practice_guideline": "GPG", "guidance": "GUI",
     "statistical_report": "STAT", "bok_chapter": "BOK", "standard": "STD",
     "court_decision": "CASE", "policy": "POL",
+    "bill": "BILL", "safe_work_instrument": "SWI", "safety_alert": "ALERT",
+    "research_report": "RESEARCH", "coroner_finding": "CORONER",
 }
 
 # Required pre_harmonisation value per jurisdiction (deterministic project invariant).
@@ -106,6 +112,7 @@ LICENSE_VOCAB = {
     "CC-BY-4.0", "CC-BY-4.0 (VERIFY)", "CC-BY-NC-3.0-AU", "crown-copyright-open-attribution",
     "crown-copyright-restricted-NT", "nz-legislation-public-domain-s27",
     "proprietary-restricted-AIHS", "iso-restricted", "VERIFY",
+    "reference-only",  # public citation-reference items (e.g. ILO conventions, coroner indexes)
 }
 
 HERE = Path(__file__).resolve().parent

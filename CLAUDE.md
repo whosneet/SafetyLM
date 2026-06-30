@@ -144,8 +144,16 @@ SafetyLM/
 
 ## 7. Conventions
 
-- **Python tooling:** *undecided — to be chosen in Phase 1* (candidates: uv / pip+venv /
-  conda). Do not assume one until it is recorded here.
+- **Python tooling:** **uv** (decided Phase 1, 2026-06-30). `pyproject.toml` + `uv.lock` are
+  the source of truth; `requirements.txt` is a generated locked mirror for non-uv users.
+  Run scripts with `uv run <script>`; add deps with `uv add <pkg>`.
+- **Dependency licensing:** every runtime dependency must be permissively licensed
+  (MIT / BSD / Apache-2.0) to stay compatible with the project's Apache-2.0 code licence.
+  **PyMuPDF (AGPL-3.0) is deliberately avoided** for PDF extraction in favour of
+  `pdfplumber` / `pdfminer.six` (MIT). Flag any AGPL/GPL/SSPL dependency before adding it.
+- **Network/sandbox:** corpus downloads hit public AU/NZ government sites; run
+  `download_corpus.py` with network egress enabled. Government WAFs require a browser-like
+  User-Agent (a bot UA hangs/403s) — the script sets one and self-throttles.
 - **Licensing:** Apache 2.0 for code; CC BY 4.0 for the benchmark dataset and docs; the
   Llama 3 Community Licence passes through to users (they pull weights from Meta via Ollama).
 - **Versioning:** semantic `vMAJOR.MINOR.PATCH`. The corpus is versioned separately from
