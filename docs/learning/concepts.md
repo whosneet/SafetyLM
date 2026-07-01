@@ -24,9 +24,9 @@ A token is the unit a language model operates on. In English, tokens are roughly
 
 **Why this matters for SafetyLM:**
 - Context window limits are in tokens, not words
-- Llama 3.1 8B has a 128,000 token context window — that's roughly 96,000 words, or about 200 pages of text
+- The shortlisted base models offer large context windows — e.g. Qwen3-14B's is ~128,000 tokens, roughly 96,000 words or about 200 pages of text
 - When you retrieve 6 chunks of 512 tokens each, that's 3,072 tokens of context injected into the prompt
-- Embedding models also have token limits — `nomic-embed-text` handles 8,192 tokens, which is enough for most legislative sections
+- Embedding models also have token limits — the primary candidate `bge-m3` handles 8,192 tokens (as does the prototyping-only `nomic-embed-text`), enough for most legislative sections
 
 ---
 
@@ -41,7 +41,7 @@ For RAG, this means:
 - The generated response takes some tokens
 - Everything must fit within the limit
 
-Llama 3.1 8B's 128K context window is generous. In practice, RAG systems rarely need more than 8K–16K tokens of context per query. The 128K limit is a ceiling you won't hit during normal SafetyLM operation.
+The shortlisted models' large context windows (~128K tokens) are generous. In practice, RAG systems rarely need more than 8K–16K tokens of context per query. That ceiling is one you won't hit during normal SafetyLM operation.
 
 ---
 
@@ -85,7 +85,7 @@ The LlamaIndex `SentenceSplitter` handles this — it doesn't cut in the middle 
 
 An embedding is a list of floating-point numbers — typically 768 or 1,536 numbers. Each number represents a coordinate in a high-dimensional space. Text with similar meaning produces lists of numbers that are close together in that space. Text with different meaning produces numbers far apart.
 
-The `nomic-embed-text` model converts a piece of text into a 768-dimensional vector. When you embed the query "PCBU duties for psychosocial hazards", you get a list of 768 numbers. Qdrant then finds the corpus chunks whose 768-number vectors are mathematically closest to your query vector.
+The primary embedding candidate `bge-m3` converts a piece of text into a dense vector of 1,024 numbers (the prototyping-only `nomic-embed-text` produces 768). When you embed the query "PCBU duties for psychosocial hazards", you get that fixed-length list of numbers. Qdrant then finds the corpus chunks whose vectors are mathematically closest to your query vector.
 
 **Why this is powerful:** "Person conducting a business or undertaking obligations for psychological safety" produces a vector close to "PCBU duties for psychosocial hazards" even though the words are completely different. Keyword search would find zero overlap. Semantic search finds the meaning.
 
@@ -116,12 +116,13 @@ Qdrant uses HNSW (Hierarchical Navigable Small World graphs) — an indexing alg
 LlamaIndex is an orchestration framework. It doesn't do any AI work itself — it connects the components that do. Specifically for SafetyLM, it:
 
 1. Takes the query string
-2. Calls `nomic-embed-text` to embed it
-3. Calls Qdrant with the embedded vector and metadata filters
-4. Takes the returned chunks
-5. Assembles them with the system prompt into a complete prompt string
-6. Calls Llama 3.1 8B via Ollama
-7. Returns the generated text
+2. Calls the embedding model (primary candidate `bge-m3`) to embed it
+3. Calls Qdrant with the embedded vector and metadata filters — a hybrid (semantic + BM25) search that returns a wide candidate set (~50)
+4. Reranks those candidates with a cross-encoder (Qwen3-Reranker-0.6B or bge-reranker-v2-m3) and keeps the top 6
+5. Takes the returned chunks
+6. Assembles them with the system prompt into a complete prompt string
+7. Calls the selected base model (benchmark pick, e.g. Qwen3-14B) via Ollama
+8. Returns the generated text
 
 Without LlamaIndex, you'd write this orchestration manually in Python. LlamaIndex saves that work and provides tested retrieval primitives (hybrid search, re-ranking, query decomposition) that you'd otherwise build from scratch.
 

@@ -60,7 +60,7 @@ source_document:    "Work Health and Safety Act 2011 (NSW)"
 source_section:     "Section 19"
 source_url:         "https://legislation.nsw.gov.au/view/html/inforce/current/act-2011-010"
 validated_by:       "Neet Singh, WHS practitioner"
-date_validated:     "2024"
+date_validated:     "2026"
 notes:              ""
 ```
 
@@ -119,7 +119,7 @@ Target for v1: **>85% jurisdictional accuracy** across the full benchmark.
 Before evaluating SafetyLM, run the benchmark against:
 
 1. **Vanilla Llama 3.1 8B** with no system prompt and no RAG — establishes the floor
-2. **Llama 3.1 8B with WHS system prompt but no RAG** — isolates the value of the system prompt
+2. **The chosen base model (Phase 4 benchmark pick — e.g. Qwen3-14B) with WHS system prompt but no RAG** — isolates the value of the system prompt
 3. **SafetyLM (full RAG + system prompt)** — the actual system
 
 If SafetyLM doesn't meaningfully outperform a well-prompted vanilla model, the RAG pipeline isn't adding value. That's important information, not a failure — it means the corpus or retrieval design needs revisiting.

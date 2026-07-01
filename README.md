@@ -81,6 +81,51 @@ Everything runs **locally and open** — no API dependency, no per-query cost, f
 
 ---
 
+## Under the hood: how the math works
+
+SafetyLM's reliability comes from turning *"which documents are relevant?"* into a **geometry problem** — one a computer can solve exactly and repeatably. Here it is in numbers.
+
+**1 · Text becomes coordinates (embeddings).**
+Each source document is split into overlapping **chunks** of ~512 tokens (≈380 words) with a 64-token overlap, so a clause split across a boundary keeps its context. SafetyLM's corpus is currently **616 catalogued documents → 20,451 chunks**. An *embedding model* (primary candidate `bge-m3`) converts every chunk into a **vector** — a list of ~1,024 numbers that places its *meaning* as a point in high-dimensional space. Chunks about similar things land near each other even when they share no words: *"PCBU obligations for psychological safety"* sits close to *"person conducting a business or undertaking duties for psychosocial hazards."*
+
+**2 · Relevance = closeness (cosine similarity).**
+Your question is embedded into the *same* space, then scored against every chunk by **cosine similarity** — the cosine of the angle between two vectors:
+
+```
+              A · B
+cos(θ)  =  ─────────────
+            ‖A‖ · ‖B‖
+```
+
+It runs from **1.0** (identical meaning) to **0.0** (unrelated); relevant WHS matches typically score **0.7–0.9**. This is why SafetyLM surfaces the right clause even when your wording differs from the legislation's.
+
+**3 · Two searches, because law is also about exact words (hybrid retrieval).**
+Pure meaning-search can miss literal terms — ask for *"section 19"* and it may not surface that exact number. So SafetyLM runs **hybrid retrieval**: the semantic (dense-vector) search *and* a keyword search (**BM25**, which rewards exact term matches and rare, information-rich words), then fuses the two rankings. Meaning finds paraphrases; BM25 nails section numbers, regulation IDs, and defined terms.
+
+**4 · The funnel: 20,451 → filter → ~50 → 6.**
+
+```
+   20,451 chunks
+        │   metadata filter   (jurisdiction ∈ {NSW, FED}, currency = CURRENT, …)
+        ▼
+   candidate pool
+        │   hybrid retrieve — cast a wide net (optimise for recall)
+        ▼
+   ~50 candidates
+        │   rerank — a cross-encoder reads (your question + each chunk) TOGETHER
+        ▼           and scores true relevance (optimise for precision)
+      top 6   ──▶   into the model's context, with citations
+```
+
+The **metadata filter** is what makes jurisdiction first-class: a Victorian query never even *considers* NSW-only chunks. The **reranker** is the precision pass — the first stage maximises *recall* (find everything possibly relevant), the reranker maximises *precision* (float the truly-relevant few to the top). A reranker can only re-order what the first stage found, which is exactly why the net is cast wide (~50) before narrowing to 6.
+
+**5 · Why this beats a chatbot's memory.**
+A plain LLM answers from a lossy, uncited memory of its training data. SafetyLM instead hands the model **six real, current, in-jurisdiction excerpts** and asks it to reason over *those* — so every claim traces to a source, and *"I couldn't find it"* becomes a possible, honest answer. The math above is the guarantee that those six excerpts are the right ones.
+
+*Plain-language explainers of each concept — tokens, embeddings, cosine similarity, HNSW, precision vs recall — live in [`docs/learning/concepts.md`](docs/learning/concepts.md).*
+
+---
+
 ## Who it's for
 
 **Primary** — WHS consultants doing cross-jurisdictional research · early-career practitioners who need a reliable starting point · small businesses without a dedicated safety team · students working toward Cert IV, Diploma, or postgraduate WHS qualifications.
@@ -96,7 +141,7 @@ SafetyLM is being **built in public**, phase by phase. Each phase has explicit a
 | Phase | What it delivers | Status |
 |---|---|---|
 | **0 · Planning & documentation** | Full architecture, corpus, evaluation, and governance design — a persistent project brief | ✅ **Complete** |
-| **1 · Corpus build** | A catalogued, structured manifest of every AU/NZ WHS source document, downloaded and processed | 🔜 **Next** |
+| **1 · Corpus build** | A catalogued **616-document manifest** of AU/NZ WHS sources, with a download → extract → chunk pipeline (20,451 metadata-tagged chunks) | 🏗️ **In progress** |
 | **2 · Embedding & vector store** | Semantic + keyword retrieval with jurisdiction filtering, validated for precision | ⬜ Planned |
 | **3 · RAG pipeline & system prompt** | First working end-to-end SafetyLM: query in → grounded, cited answer out | ⬜ Planned |
 | **4 · Benchmark evaluation** | A **500-question WHS benchmark** + scored results against baselines, published openly | ⬜ Planned |

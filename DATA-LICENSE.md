@@ -7,7 +7,7 @@ SafetyLM uses a **split licence**. This file covers the non-code assets.
 | Source code (pipeline, scripts, evaluation code, UI) | Apache 2.0 — see [`LICENSE`](LICENSE) |
 | **Benchmark dataset** (`eval/`) | **CC BY 4.0** (this file) |
 | **Documentation** (`docs/`, `README.md`) | **CC BY 4.0** (this file) |
-| Base model weights (Llama 3.1) | Meta Llama 3 Community Licence — obtained by users directly from Meta via Ollama; not redistributed here |
+| Base model weights (benchmark-selected; Apache/MIT shortlist: Qwen3-14B / Qwen3-30B-A3B / Mistral Small 3.2 24B) | Provider's permissive licence (Apache 2.0 / MIT) — obtained by users from the provider via Ollama; not redistributed here. Llama & Gemma 3 excluded on licence grounds. |
 | Corpus source documents (`corpus/raw/`, not committed) | Crown copyright / open access — see per-document `license_notes` in the corpus manifest |
 
 ---

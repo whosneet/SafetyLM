@@ -4,7 +4,7 @@ Phases are sequential. Each phase has clear acceptance criteria — move to the 
 
 ---
 
-## Phase 0 — Planning and documentation ← current
+## Phase 0 — Planning and documentation
 
 **Goal:** Produce a complete project plan that serves as a persistent brief for every Claude Code session. No code written, no corpus collected.
 
@@ -20,8 +20,8 @@ Without documented decisions, every technical session starts with re-explaining 
 - [x] docs/04-rag-pipeline.md — pipeline design and tooling decisions
 - [x] docs/05-evaluation.md — benchmark design and scoring methodology
 - [x] docs/06-phased-roadmap.md — this document
-- [ ] docs/07-distribution.md — launch strategy
-- [ ] docs/08-governance.md — licensing and contribution framework
+- [x] docs/07-distribution.md — launch strategy
+- [x] docs/08-governance.md — licensing and contribution framework
 
 **Acceptance criteria:**
 - [ ] All docs complete and internally consistent
@@ -30,7 +30,7 @@ Without documented decisions, every technical session starts with re-explaining 
 
 ---
 
-## Phase 1 — Corpus build
+## Phase 1 — Corpus build ← current
 
 **Goal:** Produce a complete, structured manifest of every AU/NZ WHS document in scope, then download and process the Tier 1 corpus.
 
@@ -41,19 +41,19 @@ A spreadsheet (CSV + XLSX) cataloguing every source document, followed by a pipe
 You cannot build a RAG system without knowing what's going in it. The manifest also forces explicit decisions about scope, licensing, and metadata structure before they become expensive to change.
 
 **Tasks:**
-- [ ] Build corpus manifest (Claude Code session using the corpus manifest prompt)
-- [ ] Validate and resolve all VERIFY-flagged URLs manually
-- [ ] Write document download script (`scripts/download_corpus.py`)
-- [ ] Write PDF/HTML text extraction script (`scripts/extract_text.py`)
-- [ ] Write chunking script with metadata attachment (`scripts/chunk_corpus.py`)
-- [ ] Process all Tier 1 documents through the pipeline
-- [ ] Manual QA: spot-check 20 processed chunks for quality
+- [x] Build corpus manifest — **616 documents** (gap-reviewed, per-document URLs resolved)
+- [ ] Validate and resolve the remaining flagged URLs manually (412 `url_verified=false` + 48 `legislative_currency=VERIFY`; the download failure log is the worklist)
+- [x] Write document download script (`scripts/download_corpus.py`)
+- [x] Write PDF/HTML text extraction script (`scripts/extract_text.py`)
+- [x] Write chunking script with metadata attachment (`scripts/chunk_corpus.py`)
+- [~] Process all Tier 1 documents through the pipeline (265/379 downloaded → 263 extracted → 20,451 chunks; 114 WAF-blocked docs pending browser recovery)
+- [x] Manual QA: spot-check 20 processed chunks for quality
 
 **Acceptance criteria:**
-- [ ] Manifest contains minimum 150 documents across all Tier 1 jurisdictions
-- [ ] All Tier 1 documents downloaded and stored in `corpus/raw/`
-- [ ] All Tier 1 documents processed into chunks in `corpus/processed/`
-- [ ] Each chunk carries complete metadata (all fields from schema populated or explicitly NULL)
+- [x] Manifest contains minimum 150 documents (616 catalogued) across all Tier 1 jurisdictions
+- [~] Tier 1 ingestable documents downloaded to `corpus/raw/` (265/379; 114 WAF-blocked)
+- [~] Downloaded Tier 1 documents processed into chunks in `corpus/processed/` (20,451 chunks)
+- [x] Each chunk carries complete metadata (all schema fields populated)
 - [ ] VIC documents are flagged `pre_harmonisation: true` (Victoria is the sole non-harmonised jurisdiction; WA is harmonised since 2022, so WA = `false`)
 
 **What you will learn this phase:**
@@ -75,7 +75,7 @@ Indexing is a one-time (or periodic) operation. Querying is real-time. Separatin
 
 **Tasks:**
 - [ ] Install and configure Qdrant locally (Docker — one command)
-- [ ] Install Ollama and pull `nomic-embed-text` embedding model
+- [ ] Install Ollama and pull the benchmark-selected embedding model (primary candidate `bge-m3`; `nomic-embed-text` prototyping only)
 - [ ] Write embedding pipeline (`embeddings/embed_corpus.py`)
 - [ ] Run embedding pipeline on Tier 1 processed corpus
 - [ ] Write a simple retrieval test script — hardcode 10 test queries, print top-3 results
@@ -103,9 +103,10 @@ Indexing is a one-time (or periodic) operation. Querying is real-time. Separatin
 The full pipeline — query in, grounded WHS answer with citations out. First working version of SafetyLM.
 
 **Tasks:**
-- [ ] Install Ollama and pull `llama3.1:8b` model
+- [ ] Install Ollama and pull the benchmark-selected base model (Apache/MIT shortlist: Qwen3-14B / Qwen3-30B-A3B / Mistral Small 3.2 24B; instruct, thinking OFF)
 - [ ] Write LlamaIndex RAG orchestration (`rag/pipeline.py`)
 - [ ] Implement hybrid search (semantic + BM25 keyword)
+- [ ] Add a cross-encoder reranker (Qwen3-Reranker-0.6B or bge-reranker-v2-m3): hybrid retrieve top ~50 → rerank → top 6
 - [ ] Implement jurisdiction detection from query
 - [ ] Write system prompt v0.1 (template in `04-rag-pipeline.md`)
 - [ ] Write CLI interface (`rag/query.py` — takes query as argument, prints response)
@@ -136,7 +137,7 @@ The credibility layer. This phase produces the evidence that SafetyLM actually w
 **Tasks:**
 - [ ] Build benchmark dataset — 500 questions across all categories
 - [ ] Validate all ground truth answers against primary sources
-- [ ] Run benchmark against: vanilla Llama 3.1 8B (no RAG), prompted Llama 3.1 8B (no RAG), SafetyLM
+- [ ] Run benchmark against: vanilla Llama 3.1 8B (no-RAG floor), the chosen base model with WHS system prompt (no RAG), SafetyLM (full RAG)
 - [ ] Score using RAGAS for factual categories
 - [ ] Manual rubric scoring for reasoning categories (sample of 50)
 - [ ] Produce evaluation report summarising results

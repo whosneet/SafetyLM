@@ -9,13 +9,13 @@ SafetyLM uses a split licence approach because code and data have different inte
 | Code (pipeline, scripts, evaluation, UI) | Apache 2.0 | Permissive, patent protection, compatible with commercial use, standard for open-source AI tooling |
 | Benchmark dataset | Creative Commons CC-BY-4.0 | Allows reuse with attribution, standard for open datasets |
 | Documentation | Creative Commons CC-BY-4.0 | Same reasoning as dataset |
-| Base model (Llama 3.1) | Meta Llama 3 Community Licence | Passed through from Meta — users must comply separately |
+| Base model (benchmark-chosen; Apache/MIT-only shortlist: Qwen3-14B / Qwen3-30B-A3B / Mistral Small 3.2 24B) | Provider's permissive licence (Apache 2.0 / MIT) | Obtained by users from the provider via Ollama; Llama & Gemma 3 excluded on licence grounds |
 
 > **Learning note — why not MIT:**  
 > Apache 2.0 and MIT are both permissive. The key difference is that Apache 2.0 includes an explicit patent grant — if a contributor has patents relevant to their contribution, they grant users rights to those patents. For a project in a safety-critical domain, Apache 2.0 is the more defensible choice.
 
 > **Learning note — why the base model licence matters:**  
-> You are not distributing Llama's weights — users download them from Meta directly via Ollama. But you should document this clearly. Your Apache 2.0 licence covers SafetyLM's code. Users are separately bound by Meta's community licence for Llama usage. Document this in the README and `LIMITATIONS.md`.
+> You are not distributing model weights — users pull them from the provider directly via Ollama. Your Apache 2.0 licence covers SafetyLM's code. The v1 model shortlist is Apache/MIT-licensed (Qwen3-14B, Qwen3-30B-A3B, Mistral Small 3.2 24B), so users inherit a permissive licence on the weights too — record the exact model and its licence once the Phase 4 benchmark picks it. Document this in the README and `LIMITATIONS.md`.
 
 ---
 

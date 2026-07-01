@@ -69,7 +69,7 @@ For SafetyLM, this means:
                           ▼
 ┌─────────────────────────────────────────────────────────────┐
 │                    BASE LLM (local)                         │
-│   • Runs on M3 Max via llama.cpp or Ollama                  │
+│   • Runs on M3 Max via Ollama (Metal)                       │
 │   • Generates response grounded in retrieved context        │
 │   • Cites specific documents from the injected chunks       │
 └─────────────────────────┬───────────────────────────────────┘
@@ -127,7 +127,7 @@ The logic layer that takes a query, builds the right search filters, hits the ve
 
 The language model that generates the final response. For SafetyLM v1, this runs locally on the M3 Max. No API dependency, no per-token cost, full data sovereignty.
 
-- **Candidates (refreshed 2026-06-29):** Qwen3-14B, Qwen3-30B-A3B (MoE), Mistral Small 3.2 — all Apache/MIT; benchmark-decided, not locked. (Llama & Gemma 3 excluded on licence grounds.)
+- **Candidates (refreshed 2026-06-29):** Qwen3-14B, Qwen3-30B-A3B (MoE), Mistral Small 3.2 24B — all Apache/MIT; benchmark-decided, not locked. (Llama & Gemma 3 excluded on licence grounds.)
 - **Runtime:** Ollama (simplest local model serving for this hardware)
 - **Selection rationale:** [`02-model-selection.md`](02-model-selection.md)
 

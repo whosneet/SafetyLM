@@ -114,49 +114,70 @@ As of 2026, an industrial/workplace manslaughter offence is in force in **all ni
 Every document in the corpus manifest carries these fields. Every chunk derived from that document inherits them.
 
 ```
-source_id           Unique ID: [JURISDICTION]-[CATEGORY]-[SEQUENCE]
-                    e.g. FED-COP-001, NSW-LEG-001, NZ-REG-003
+source_id            Unique ID: [JURISDICTION]-[CATEGORY]-[SEQUENCE]
+                     e.g. FED-COP-001, NZ-REG-003, CTH-GUI-001, AIHS-BOK-001
 
-jurisdiction        FED / NSW / VIC / QLD / SA / WA / TAS / NT / ACT / NZ
+jurisdiction         FED / CTH / NSW / VIC / QLD / SA / WA / TAS / NT / ACT / NZ / AIHS
+                     (FED = Safe Work Australia model instruments; CTH = Comcare;
+                      AIHS = Body of Knowledge)
 
-regulator           Issuing body full name
-                    e.g. Safe Work Australia, SafeWork NSW, WorkSafe NZ
+regulator            Issuing body full name
+                     e.g. Safe Work Australia, SafeWork NSW, WorkSafe New Zealand
 
-document_type       LEGISLATION / REGULATION / CODE_OF_PRACTICE /
-                    GUIDANCE / STATISTICAL_REPORT / COURT_DECISION /
-                    POLICY / BOK_CHAPTER
+document_type        act / regulation / code_of_practice / compliance_code (VIC) /
+                     acop (NZ) / good_practice_guideline (NZ) / guidance /
+                     statistical_report / bok_chapter / standard / court_decision /
+                     policy / bill / safe_work_instrument (NZ) / safety_alert /
+                     research_report / coroner_finding
 
-document_title      Full official title
+document_title       Full official title (verbatim, incl. any statutory suffix)
 
-url                 Direct URL to document or landing page
+instrument_id        Statutory id where one exists (e.g. SL-2025-0440, A2011-35,
+                     act-2012-001, LI 2016/13, F2016L00405); else blank
 
-file_format         PDF / HTML / DOCX / XLSX
+url                  Direct URL to the document (or the regulator index/landing page)
 
-date_published      YYYY-MM-DD or YYYY if only year known
+url_verified         true / false  (true only when a direct fetch returned HTTP 200)
 
-date_last_reviewed  YYYY-MM-DD or NULL
+verification_method  direct_fetch / search_snippet / regulator_index
+
+file_format          PDF / HTML / DOCX / XLSX
+
+date_published       YYYY-MM-DD or YYYY if only year known
+
+commencement_date    YYYY-MM-DD the instrument commenced, else blank
+
+currency_version_date YYYY-MM-DD of the in-force / compilation version cited, else blank
 
 legislative_currency CURRENT / SUPERSEDED / UNDER_REVIEW / VERIFY
-                    (VERIFY = currency could not be web-confirmed; resolve manually)
+                     (VERIFY = currency could not be web-confirmed; resolve manually)
 
-hazard_category     PRIMARY hazard domain — one value only:
-                    PSYCHOSOCIAL / OVA / FALLS / PLANT_EQUIPMENT /
-                    CHEMICAL / MANUAL_HANDLING / ELECTRICAL /
-                    CONFINED_SPACES / CONTRACTOR / NOISE / BIOLOGICAL /
-                    RADIATION / THERMAL / GENERAL
+hazard_category      PRIMARY hazard domain — one value only:
+                     PSYCHOSOCIAL / OVA / FALLS / PLANT_EQUIPMENT / CHEMICAL /
+                     MANUAL_HANDLING / ELECTRICAL / CONFINED_SPACES / CONTRACTOR /
+                     NOISE / BIOLOGICAL / RADIATION / THERMAL / GENERAL
 
-industry_relevance  Comma-separated: CONSTRUCTION / HEALTH /
-                    TRANSPORT / MANUFACTURING / MINING / ALL
+industry_relevance   Comma-separated: CONSTRUCTION / HEALTH /
+                     TRANSPORT / MANUFACTURING / MINING / ALL
 
-priority_tier       1 / 2 / 3
+priority_tier        1 / 2 / 3
 
-pre_harmonisation   true / false (true = non-harmonised jurisdiction; VIC only.
-                    WA is harmonised since 2022, so WA = false)
+pre_harmonisation    true / false / n/a  (true = VIC only, the sole non-harmonised
+                     jurisdiction; WA is harmonised since 2022, so WA = false;
+                     n/a for FED / NZ / AIHS)
 
-license_notes       Crown copyright / Creative Commons / Open Access
+license_notes        Free-text licensing note / controlled tag, e.g. CC-BY-4.0,
+                     crown-copyright-open-attribution, nz-legislation-public-domain-s27,
+                     proprietary-restricted-AIHS, crown-copyright-restricted-NT
 
-notes               Version notes, relationships to other documents,
-                    known gaps
+ingestable           true / false  (false where the licence forbids ingestion —
+                     e.g. NT legislation, AIHS BoK, ISO/AS standards)
+
+ingest_caveat        Reason when ingestable=false (blank otherwise)
+
+download_attempted   Populated by the download pipeline (blank in the manifest itself)
+
+notes                Version notes, relationships to other documents, known gaps
 ```
 
 ---

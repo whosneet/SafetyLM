@@ -27,7 +27,7 @@ Cleaned text (headers preserved, boilerplate removed)
 512-token chunks with 64-token overlap
 Metadata attached to each chunk
         │
-        ▼ [Embedding model: nomic-embed-text]
+        ▼ [Embedding model: bge-m3 (primary candidate) — nomic-embed-text prototyping only]
 Vector representation of each chunk
         │
         ▼ [Qdrant vector store]
@@ -63,7 +63,7 @@ User query: "What are the PCBU duties for psychosocial hazards in NSW?"
         ▼ [Query analyser]
 Detected: jurisdiction = NSW
           hazard_category = PSYCHOSOCIAL
-          document_type_preference = LEGISLATION, CODE_OF_PRACTICE
+          document_type_preference = act, regulation, code_of_practice
         │
         ▼ [Query embedder]
 Query vector generated

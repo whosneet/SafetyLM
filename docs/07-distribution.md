@@ -60,7 +60,7 @@ SafetyLM/
 ### When to publish
 
 Publish to Hugging Face when:
-- Benchmark results show SafetyLM meaningfully outperforms vanilla Llama on the WHS benchmark
+- Benchmark results show SafetyLM meaningfully outperforms the no-RAG baseline floor (vanilla Llama 3.1 8B) on the WHS benchmark
 - The system prompt and RAG pipeline are stable enough that the published version is representative
 - The dataset card is written and accurate
 
@@ -69,7 +69,7 @@ Do not publish early for visibility. A model card that can't be backed by benchm
 ### What to publish
 
 **SafetyLM model card** — not fine-tuned weights (v1 has none), but a model card that documents:
-- Base model: Llama 3.1 8B
+- Base model: selected by the Phase 4 benchmark from the Apache/MIT-licensed shortlist (Qwen3-14B, Qwen3-30B-A3B, or Mistral Small 3.2 24B) — Llama excluded on licence grounds (vanilla Llama 3.1 8B is kept only as the no-RAG baseline floor)
 - System prompt template (publishable, not secret)
 - Corpus methodology and sources
 - Benchmark results
