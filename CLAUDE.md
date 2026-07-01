@@ -128,17 +128,23 @@ SafetyLM/
 `docs/06-phased-roadmap.md` are met.
 
 0. Planning & documentation — ✅ done
-1. **Corpus build** — manifest (≥150 docs) → download → extract → chunk ← **NEXT**
-2. Embedding & vector store — Qdrant index + retrieval validation
+1. **Corpus build** — manifest ✅ (616 docs) → download ✅ → extract ✅ → chunk ✅ ← **IN PROGRESS** (cleanup pending)
+2. Embedding & vector store — Qdrant index + retrieval validation ← **NEXT**
 3. RAG pipeline & system prompt — end-to-end query → cited answer
 4. Benchmark evaluation — 500-Q dataset, RAGAS scoring, baselines
 5. Interface & public launch — Chainlit, install docs, GitHub public
 6. v2 planning — fine-tuning, LoRA (future)
 
 <!-- Update the three lines below at the end of each working session. -->
-- **Current phase:** Phase 0 → Phase 1 transition
-- **Last completed:** Phase 0 admin setup — repo scaffolded, `git init`, this CLAUDE.md authored
-- **Next session goal:** Begin Phase 1 — build the corpus manifest
+- **Current phase:** Phase 1 — Corpus build (ingestion pipeline running)
+- **Last completed:** Manifest (616 docs, gap-reviewed + URL-resolved) → `download_corpus.py`
+  (265/379 Tier-1 ingestable captured; 114 WAF-blocked, 30 licence-skipped) → `extract_text.py`
+  (263 docs → clean text; PDF-link-follow for landing pages) → `chunk_corpus.py`
+  (**20,451 metadata-tagged chunks**, 512/64, every chunk carries full manifest metadata).
+- **Phase 1 cleanup queue (before Phase 2):** recover the 114 WAF-blocked Tier-1 downloads via
+  `/browse`; re-extract 2 CID/garbled WA PDFs (WA-COP-005/017 — need OCR) + the thin CTH
+  register-page codes; optionally improve section-heading detection (currently ~11%).
+- **Next session goal:** Phase 2 — stand up Qdrant + embed the chunks (bge-m3 candidate).
 
 ---
 
