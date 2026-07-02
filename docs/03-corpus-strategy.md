@@ -63,6 +63,13 @@ For each jurisdiction: WHS Act, WHS Regulations, all approved/compliance codes o
 - All WorkSafe NZ approved codes of practice
 - WorkSafe NZ good practice guidelines
 
+> **Tiering nuance (2026-07-02):** "all NZ approved codes = Tier 1" applies to the current
+> HSWA-era ACOPs. Legacy pre-HSWA ACOPs, HSNO codes (HSNOCOP series), and the New Zealand
+> Electrical Codes of Practice (NZECP series, issued under the Electricity Act 1992 /
+> Electricity (Safety) Regulations 2010 — not HSWA instruments) are deliberately tiered
+> 1–3 by practitioner relevance in the manifest, with `legislative_currency = VERIFY`
+> until each is confirmed against the live WorkSafe register.
+
 ---
 
 ### Tier 2 — Important (include in v1 where available)
